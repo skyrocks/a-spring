@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.aolong.core.user.mapper.UserMapper">
+
+    <sql id="emptyId">'00000000-0000-0000-0000-000000000000'</sql>
+
+    <resultMap id="result" type="com.aolong.core.user.model.UserModel"/>
+
+    <select id="findAll" resultMap="result">
+        select * from tsys_user
+    </select>
+    
+    <select id="findById" parameterType="String" resultMap="result">
+        SELECT * from tsys_user where userId = #{userId}
+    </select>
+    
+    <insert id="add">
+        insert into tsys_User(
+                        status,
+                        userId,
+                        userName,
+                        userNameCn,
+                        loginName,
+                        password,
+                        gender,
+                        departmentId,
+                        regionId,
+                        photo,
+                        cellphone,
+                        weixin,
+                        qq,
+                        email,
+                        address,
+                        regDate,
+                        lastUpdateDate,
+                        lastUpdateUserId
+                    ) values ( 
+                        #{status},
+                        #{userId},
+                        #{userName},
+                        #{userNameCn},
+                        #{loginName},
+                        #{password},
+                        #{gender},
+                        #{departmentId},
+                        #{regionId},
+                        #{photo},
+                        #{cellphone},
+                        #{weixin},
+                        #{qq},
+                        #{email},
+                        #{address},
+                        #{regDate},
+                        #{lastUpdateDate},
+                        #{lastUpdateUserId})
+    </insert>
+
+    <update id="modify">
+        update tsys_User set 
+            status = #{status}, 
+            userName = #{userName}, 
+            userNameCn = #{userNameCn}, 
+            departmentId = #{departmentId},
+            regionId = #{regionId}, 
+            photo = #{photo}, 
+            gender = #{gender}, 
+            cellphone = #{cellphone}, 
+            weixin = #{weixin}, 
+            qq = #{qq}, 
+            email = #{email}, 
+            address = #{address}, 
+            lastUpdateDate = #{lastUpdateDate}, 
+            lastUpdateUserId = #{lastUpdateUserId}
+        where userId = #{userId}
+    </update>
+
+    <update id="modifyPassword">
+        update tsys_user set 
+            password = #{password},
+            lastUpdateDate = #{lastUpdateDate}, 
+            lastUpdateUserId = #{lastUpdateUserId}
+        where userId = #{userId}
+    </update>
+    
+    <delete id = "remove">
+        delete from tsys_User where userId in
+        <foreach item="item" index="index" collection="array" open="(" separator="," close=")">
+                #{item}
+        </foreach>
+    </delete>
+
+</mapper>

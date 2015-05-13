@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+					http://www.springframework.org/schema/security
+					http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<security:http use-expressions="false" entry-point-ref="authenticationEntryPoint">
+
+		<security:intercept-url pattern="/lbClassicStatus"  access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/login.html"  access="IS_AUTHENTICATED_ANONYMOUSLY" />  
+		<security:intercept-url pattern="/captcha"  access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/resources/**"   access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/**/*.jsp" access="ROLE_ROOT" /><!--禁止直接访问jsp-->
+		<security:intercept-url pattern="/**" access="ROLE_USER" />
+		
+		<security:access-denied-handler error-page="/error"/>
+		
+		<security:custom-filter ref="rememberMeFilter" position="REMEMBER_ME_FILTER"/>
+		
+		<security:custom-filter ref="usernamePasswordFilter" position="FORM_LOGIN_FILTER" />  
+
+		<security:logout logout-success-url="/" />
+		
+	</security:http> 
+    
+    <bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">  
+    	<constructor-arg index="0" value="/login.html" />
+	</bean> 
+
+    <security:authentication-manager alias="authenticationManager" erase-credentials="false" >        
+		<security:authentication-provider ref="authenticationProvider"/>
+		<security:authentication-provider ref="rememberMeAuthenticationProvider"/>
+	</security:authentication-manager>
+	<bean id="authenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<property name="hideUserNotFoundExceptions" value="false" />
+		<property name="userDetailsService" ref="userDetailsServiceImpl" />
+		<property name="passwordEncoder" ref="passwordEncoder" />  
+		<property name="saltSource" ref="saltSource" />  
+	</bean>
+    <bean id="passwordEncoder" class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" />  
+	<bean id="saltSource" class="org.springframework.security.authentication.dao.ReflectionSaltSource">  
+	    <property name="userPropertyToUse" value="username"/>  
+	</bean>  
+
+	<!-- 用户名密码验证码拦截器 -->
+	<bean id="usernamePasswordFilter" class="com.aolong.common.security.UsernamePasswordCaptchaAuthenticationFilter">
+    	<property name="authenticationManager" ref="authenticationManager" />
+    	<property name="authenticationSuccessHandler">
+    		<bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">	
+    			<property name="defaultTargetUrl" value="/" />
+    			<property name="alwaysUseDefaultTargetUrl" value="true"/>
+    		</bean>
+    	</property>
+    	<property name="authenticationFailureHandler">
+    		<bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">	
+    			<property name="defaultFailureUrl" value="/login.html?error=1" />
+    		</bean>
+    	</property>
+    	<property name="rememberMeServices" ref="rememberMeServices"/>
+    </bean>
+
+	<!-- remember拦截器 -->
+	<bean id="rememberMeFilter" class="org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">  
+		<constructor-arg index="0" ref="authenticationManager" />
+	  	<constructor-arg index="1" ref="rememberMeServices" />
+    </bean> 
+	<!-- <bean id="rememberMeServices" class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+	  	<constructor-arg index="0" value="maomao" />
+	  	<constructor-arg index="1" ref="userDetailsServiceImpl" />
+	  	<property name="tokenValiditySeconds" value="604800"></property>
+	</bean> -->
+	<bean id="rememberMeServices" class="org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices">
+      	<constructor-arg index="0" value="maomao" />
+	  	<constructor-arg index="1" ref="userDetailsServiceImpl" />
+	  	<constructor-arg index="2">
+	  		<bean class="org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl">
+            	<property name="dataSource" ref="dataSource"/>
+	            <!--<property name="createTableOnStartup" value="true"/>--> <!-- 是否在系统启动时创建持久化token的数据库表 -->
+         </bean>
+	  	</constructor-arg>
+	  	<property name="tokenValiditySeconds" value="604800"/>
+   </bean>
+    <bean id="rememberMeAuthenticationProvider" class="org.springframework.security.authentication.RememberMeAuthenticationProvider">
+      	<constructor-arg index="0" value="maomao" />
+    </bean>
+	 
+	<!-- 图片验证码 -->
+    <bean class="com.octo.captcha.service.multitype.GenericManageableCaptchaService">
+    	<constructor-arg index="0" ref="imageEngine" />
+    	<constructor-arg type="int" index="1" value="180" /><!--超时时间 秒 -->
+    	<constructor-arg type="int" index="2" value="20000" /><!--最大并发数 -->
+    	<constructor-arg type="int" index="3" value="20000" />
+  	</bean>
+  	<bean id="imageEngine" class="com.aolong.common.security.ImageGenericCaptchaEngine"/>
+  	
+</beans>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+					http://www.springframework.org/schema/beans/spring-beans.xsd
+					http://www.springframework.org/schema/tx
+					http://www.springframework.org/schema/tx/spring-tx.xsd
+					http://www.springframework.org/schema/context
+					http://www.springframework.org/schema/context/spring-context.xsd
+					http://www.springframework.org/schema/mvc
+					http://www.springframework.org/schema/mvc/spring-mvc.xsd
+					http://www.springframework.org/schema/aop
+					http://www.springframework.org/schema/aop/spring-aop.xsd
+					http://www.springframework.org/schema/util
+					http://www.springframework.org/schema/util/spring-util.xsd">					
+
+	<!-- 自动扫描包名 -->
+	<context:component-scan base-package="com.aolong" use-default-filters="false" >
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Service"/><!-- 仅扫描@Service注解 -->
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Repository"/><!-- 仅扫描@Repository注解 -->
+	</context:component-scan>		
+	
+	<!-- mybatis -->
+	<context:property-placeholder location="classpath:config/jdbc.properties" />	
+	
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="${jdbc.driverClassName}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<property name="preferredTestQuery" value="select 1" />
+		<property name="idleConnectionTestPeriod" value="14400" />
+	</bean>				
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- <property name="configLocation" value="classpath:config/mybatis-config.xml"/> -->
+		<property name="mapperLocations" value="classpath*:sqlmap/*.xml" />
+		<property name="plugins">
+			<array>
+				<ref bean="pageInterceptor" />
+				<ref bean="updateInfoInterceptor" />
+			</array>
+		</property>
+	</bean>
+	<bean id="pageInterceptor" class="com.aolong.common.mybatis.PageInterceptor">
+		<property name="dialect" value="${jdbc.driverClassName}"/>
+	</bean>
+	<bean id="updateInfoInterceptor" class="com.aolong.common.mybatis.UpdateInfoInterceptor"/>
+		
+ 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.aolong" />
+        <property name="markerInterface" value="com.aolong.common.mapper.SqlMapper"/>
+    </bean>
+	<!-- <bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="sqlSessionFactory" />
+		constructor-arg index="1" value="BATCH" /
+	</bean>	 -->
+
+	<bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager"/>  
+	
+	
+	<!-- 国际化 -->
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+  		<property name="basename" value="classpath:config/messages" />
+ 	</bean>
+ 	<bean id="localeResolver" class="com.aolong.common.locale.AcceptHeaderLocaleResolver" />
+	
+	<bean class="com.aolong.common.util.SpringContextUtil"/> 
+	
+		
+    <import resource="spring-security.xml"/>	
+		
+</beans>
