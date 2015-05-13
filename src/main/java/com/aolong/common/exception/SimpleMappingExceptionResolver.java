@@ -29,8 +29,8 @@ public class SimpleMappingExceptionResolver extends org.springframework.web.serv
             //TODO 数据库异常发邮件等等。。。
         }
         
-        if ( request.getHeader("accept").indexOf("application/json") > -1 || 
-             ( request.getHeader("X-Requested-With") != null && request.getHeader("X-Requested-With").indexOf("XMLHttpRequest") > -1) ) {
+        if ( request.getHeader("accept").contains("application/json") ||
+             ( request.getHeader("X-Requested-With") != null && request.getHeader("X-Requested-With").contains("XMLHttpRequest")) ) {
             
             response.setContentType("application/json;charset=utf-8");
             Map<String, Object> result = new HashMap<String, Object>();
@@ -45,7 +45,7 @@ public class SimpleMappingExceptionResolver extends org.springframework.web.serv
             }
             return null;
         } else {
-            request.setAttribute("errDesc", ex.getMessage()); 
+            request.setAttribute("errDesc", ex.getMessage());
             String viewName = determineViewName(ex, request); //获取spring mvc异常配置页面
             if (viewName != null) {
                 Integer statusCode = determineStatusCode(request, viewName);
