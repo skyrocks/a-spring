@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="description" content="spring mvc, spring security, mybatis 最新版整合测试">
 	<meta name="keywords" content="spring mvc spring security mybatis">
-	<meta name="author" content="aolong.com">
+	<meta name="author" content="skyrocks">
 	
 	<base href="<%= basePath %>">
 

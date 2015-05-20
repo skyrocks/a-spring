@@ -1,9 +1,11 @@
 (function(){
 	$(document).ajaxSend(function(e,xhr,opt) {
-		if (opt.type == "POST" && $('#_csrf').length > 0){
-			var header = $('#_csrf').attr('name');
-			var token  = $('#_csrf').attr('content');
-			xhr.setRequestHeader(header, token);
+		if (opt.type == "POST"){
+			var header = $('meta[name=_csrf_header]').attr('content');
+			var token  = $('meta[name=_csrf]').attr('content');
+			if (header != '' && token != ''){
+				xhr.setRequestHeader(header, token);
+			}
 		}
 	});
 })();

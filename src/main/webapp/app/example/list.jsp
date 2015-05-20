@@ -97,7 +97,7 @@
   <script src="http://libs.useso.com/js/jquery.form/3.50/jquery.form.min.js"></script>
   <script src="http://cdn.staticfile.org/jquery-validate/1.13.1/jquery.validate.min.js"></script>
   <script src="resources/js/access.js"></script>
-  <script src="resources/js/page.js"></script>
+  <script src="resources/js/pagination.js"></script>
   
   <script>
 
@@ -105,7 +105,7 @@
 
       jQuery(document).ready(function() {
 	       
-        $('#page').append( Page.create( 1, total, function(e){ loadData(e.data.page); }, 'left' ) );
+        $('#page').append( Pagination.create( 1, total, function(e){ loadData(e.data.page); }, 'left' ) );
 
         function loadData(page){
             
@@ -133,7 +133,7 @@
                         $('#list').append($div);
                     }
                     if (result.total > 0) {
-                        $('#page').append( Page.create( page, result.total, function(e){ loadData(e.data.page); }, 'left' ) );
+                        $('#page').append( Pagination.create( page, result.total, function(e){ loadData(e.data.page); }, 'left' ) );
                     }
                 };
 

@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
+<%@ taglib prefix='security' uri='http://www.springframework.org/security/tags' %>
 <%
 	String path = request.getContextPath();
 	String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
@@ -11,8 +12,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   	<meta name="description" content="spring mvc, spring security, mybatis 最新版整合测试">
   	<meta name="keywords" content="spring mvc spring security mybatis">
-  	<meta name="author" content="aolong.com">
-  	
+  	<meta name="author" content="skyrocks">
+    <security:csrfMetaTags/>
+
   	<base href="<%= basePath %>">
 
     <!-- Le styles -->
@@ -92,8 +94,7 @@
                 </div>
               </div>
             </div>
-            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}">
-            <!-- <input value="submit" type="submit"/>   -->
+            <security:csrfInput/>
             <br>
             <button type="submit" class="btn btn-success btn-block">登 录</button>
           </form> 

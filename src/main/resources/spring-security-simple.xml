@@ -17,7 +17,7 @@
 		<security:intercept-url pattern="/**" access="ROLE_USER" />  
 		
 		<security:access-denied-handler error-page="/error"/>
-		
+		<security:remember-me/>
 		<security:logout logout-success-url="/" />
 		
         <security:form-login login-page="/login.html" default-target-url="/" authentication-failure-url="/login.html?error=1" always-use-default-target="true" /> 

@@ -20,9 +20,11 @@
 		
 		<security:custom-filter ref="rememberMeFilter" position="REMEMBER_ME_FILTER"/>
 		
-		<security:custom-filter ref="usernamePasswordFilter" position="FORM_LOGIN_FILTER" />  
+		<security:custom-filter ref="usernamePasswordFilter" position="FORM_LOGIN_FILTER" />
 
-		<security:logout logout-success-url="/" />
+		<security:custom-filter ref="logoutFilter" position="LOGOUT_FILTER" />
+
+		<security:csrf token-repository-ref="csrfTokenRepository" />
 		
 	</security:http> 
     
@@ -86,6 +88,31 @@
     <bean id="rememberMeAuthenticationProvider" class="org.springframework.security.authentication.RememberMeAuthenticationProvider">
       	<constructor-arg index="0" value="maomao" />
     </bean>
+
+	<!--登出拦截器-->
+	<bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
+		<constructor-arg index="0" value="/login.html" />
+		<constructor-arg index="1">
+			<list>
+				<ref bean="rememberMeServices"/>
+				<bean class="org.springframework.security.web.csrf.CsrfLogoutHandler" >
+					<constructor-arg index="0">
+						<ref bean="csrfTokenRepository" />
+					</constructor-arg>
+				</bean>
+				<bean class="org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler">
+					<constructor-arg index="0">
+						<array>
+							<value>JSESSIONID</value>
+							<value>remember-me</value>
+						</array>
+					</constructor-arg>
+				</bean>
+				<bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="csrfTokenRepository" class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository" />
 	 
 	<!-- 图片验证码 -->
     <bean class="com.octo.captcha.service.multitype.GenericManageableCaptchaService">
